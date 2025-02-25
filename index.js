@@ -27,27 +27,28 @@ app.use(express.json());
 
 // Обработчик сообщений
 bot.command('ask', async (ctx) => {
-    const userMessage = ctx.message.text.replace('/ask', '').trim();
+    const messageText = ctx.message.text.replace('/ask', '').trim();
 
-    if (!userMessage) {
+    if (!messageText) {
         return ctx.reply('Пожалуйста, напишите вопрос после /ask');
     }
 
-    console.log(`🔍 Отправляю запрос в OpenAI: ${userMessage}`);
-
+    console.log(`Получен текст от пользователя "${ctx.message.from.username}": ${messageText}`);
+    const request = {
+        model: "gpt-4o-mini",
+        messages: [
+            {
+                role: "system",
+                content: "Ты помошница по бизнесу, разговариваешь простым языком, нежно и ласково. Но говори иногда 'Дон' так как это делает Кадыров"
+            },
+            {
+                role: "user",
+                content: messageText,
+            },
+        ]
+    }
     try {
-        const response = await openai.chat.completions.create({
-            model: "gpt-4o-mini",
-            messages: [
-                { role: "system", content: "как сделать борщ? Дай подробный пошаговый рецепт без стихов." },
-                {
-                    role: "user",
-                    content: "как сделать борщ? Дай подробный пошаговый рецепт без стихов.",
-                },
-            ],
-            store: true,
-
-        });
+        const response = await openai.chat.completions.create(request);
 
         console.log(`✅ Ответ от OpenAI: ${response.choices[0].message.content}`);
 
