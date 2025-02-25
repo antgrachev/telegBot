@@ -41,6 +41,10 @@ bot.use((ctx, next) => {
     return next();
 });
 
+await bot.telegram.setMyCommands([
+    { command: "forget", description: "Очистить контекст переписки" }
+]);
+
 // Обработчик сообщений
 
 bot.start((ctx) => ctx.reply('Хай балагай'));
