@@ -25,26 +25,44 @@ const bot = new Telegraf(BOT_TOKEN);
 const app = express();
 app.use(express.json());
 
-// Обработчик сообщений
+// Подключаем сессию
+bot.use(session());
 
-bot.start((ctx) => ctx.reply('Хай балагай'));
-
-bot.on('message', async (ctx) => {
-    const messageText = ctx.message.text.trim();
-
-    console.log(`Получен текст от пользователя "${ctx.message.from.username}": ${messageText}`);
-    const request = {
-        model: "gpt-4o-mini",
+// Инициализация контекста пользователя
+bot.use((ctx, next) => {
+    if (!ctx.session) ctx.session = {
         messages: [
             {
                 role: "system",
                 content: "Ты помошница по бизнесу, разговариваешь простым языком, нежно и ласково. Но говори почаще 'Дон', так как это делает Кадыров"
-            },
-            {
-                role: "user",
-                content: messageText,
-            },
+            }
         ]
+    };
+    return next();
+});
+
+// Обработчик сообщений
+
+bot.start((ctx) => ctx.reply('Хай балагай'));
+
+bot.command('/forget', async (ctx) => ctx.session.messages.slice(0, 1))
+
+bot.on('message', async (ctx) => {
+    const messageText = ctx.message.text.trim();
+
+    console.log(`Получено сообщение от пользователя "${ctx.message.from.username}": ${messageText}`);
+
+    const currentMessage = {
+        role: "user",
+        content: messageText
+    }
+
+    // Добавляем сообщение пользователя в историю
+    ctx.session.messages.push(currentMessage);
+
+    const request = {
+        model: "gpt-4o-mini",
+        messages: ctx.session.messages
     }
     try {
         const response = await openai.chat.completions.create(request);
