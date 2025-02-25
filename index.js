@@ -26,12 +26,11 @@ const app = express();
 app.use(express.json());
 
 // Обработчик сообщений
-bot.command('ask', async (ctx) => {
-    const messageText = ctx.message.text.replace('/ask', '').trim();
 
-    if (!messageText) {
-        return ctx.reply('Пожалуйста, напишите вопрос после /ask');
-    }
+bot.start((ctx) => ctx.reply('Хай балагай'));
+
+bot.on('message', async (ctx) => {
+    const messageText = ctx.message.text.trim();
 
     console.log(`Получен текст от пользователя "${ctx.message.from.username}": ${messageText}`);
     const request = {
@@ -39,7 +38,7 @@ bot.command('ask', async (ctx) => {
         messages: [
             {
                 role: "system",
-                content: "Ты помошница по бизнесу, разговариваешь простым языком, нежно и ласково. Но говори иногда 'Дон' так как это делает Кадыров"
+                content: "Ты помошница по бизнесу, разговариваешь простым языком, нежно и ласково. Но говори почаще 'Дон', так как это делает Кадыров"
             },
             {
                 role: "user",
@@ -49,8 +48,6 @@ bot.command('ask', async (ctx) => {
     }
     try {
         const response = await openai.chat.completions.create(request);
-
-        console.log(`✅ Ответ от OpenAI: ${response.choices[0].message.content}`);
 
         ctx.reply(response.choices[0].message.content);
     } catch (error) {
