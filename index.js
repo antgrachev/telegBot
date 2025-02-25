@@ -18,22 +18,28 @@ bot.start((ctx) => ctx.reply("Привет! Напиши свой вопрос, 
 bot.help((ctx) => ctx.reply("Используй команду /ask <вопрос> для запроса к OpenAI."));
 
 // Обработка команды /ask
-bot.command("ask", async (ctx) => {
+bot.command('ask', async (ctx) => {
     const question = ctx.message.text.slice(5).trim();
-    if (!question) return ctx.reply("Пожалуйста, напишите вопрос после /ask");
+
+    if (!question) {
+        return ctx.reply('Пожалуйста, напишите вопрос после команды /ask');
+    }
 
     try {
         const response = await openai.chat.completions.create({
-            model: "gpt-4o-mini",
-            messages: [{ role: "user", content: question }],
+            model: 'gpt-4o-mini',
+            messages: [{ role: 'user', content: question }],
         });
 
-        response.then((result) => console.log(result.choices[0].message));
-
-        ctx.reply(response.choices[0].message.content.trim());
+        // Проверяем, есть ли ответы в choices
+        if (response.choices && response.choices.length > 0) {
+            ctx.reply(response.choices[0].message.content.trim());
+        } else {
+            ctx.reply('OpenAI не дал ответа. Попробуйте еще раз.');
+        }
     } catch (error) {
-        console.error("Ошибка при запросе OpenAI:", error);
-        ctx.reply("Произошла ошибка при запросе OpenAI.");
+        console.error('Ошибка OpenAI:', error);
+        ctx.reply('Произошла ошибка при запросе OpenAI');
     }
 });
 
