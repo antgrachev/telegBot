@@ -1,5 +1,5 @@
 import express from 'express';
-import { Telegraf } from 'telegraf';
+import { Telegraf, session } from 'telegraf';
 import { OpenAI } from "openai";
 
 // Инициализация OpenAI API с ключом
