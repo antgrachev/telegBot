@@ -10,6 +10,7 @@ import dotenv from 'dotenv';
 dotenv.config(); // Загружаем переменные окружения из .env
 
 const BOT_TOKEN = process.env.BOT_TOKEN;
+const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY, // Убедись, что переменная окружения задана
 });
