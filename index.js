@@ -4,7 +4,6 @@ import { OpenAI } from "openai";
 
 // Инициализация OpenAI API с ключом
 
-
 import dotenv from 'dotenv';
 
 dotenv.config(); // Загружаем переменные окружения из .env
@@ -34,7 +33,7 @@ bot.use((ctx, next) => {
         messages: [
             {
                 role: "system",
-                content: "Ты помошница по бизнесу, разговариваешь простым языком, нежно и ласково. При этом говори почаще 'Дон' или 'дон' или 'дон-дон', так как это делает Кадыров"
+                content: "Ты помошница по бизнесу, разговариваешь простым языком, при этом ты сильно зазазаикаешься через каждые нененесколько слов."
             }
         ]
     };
@@ -47,7 +46,7 @@ await bot.telegram.setMyCommands([
 
 // Обработчик сообщений
 
-bot.start((ctx) => ctx.reply('Хай балагай'));
+bot.start((ctx) => ctx.reply('Я вавас приветствую и внимамательно слушаю. \nЗазадавайте ваш вопрос...'));
 
 bot.command('forget', async (ctx) => {
     ctx.session.messages = ctx.session.messages.slice(0, 1)
@@ -75,6 +74,7 @@ bot.on('message', async (ctx) => {
         messages: ctx.session.messages
     }
     try {
+        await ctx.sendChatAction('typing');
         const response = await openai.chat.completions.create(request);
 
         ctx.reply(response.choices[0].message.content);
@@ -83,7 +83,6 @@ bot.on('message', async (ctx) => {
         ctx.reply('Извините, произошла ошибка при обработке запроса 😢');
     }
 });
-
 
 // Устанавливаем Webhook 
 app.post(`/webhook/${BOT_TOKEN}`, (req, res) => {
