@@ -7,7 +7,7 @@
 
 1. Клонируйте репозиторий:
    ```bash
-   git clone https://github.com/username/telegBot.git
+   git clone XXX()
 =======
 # telegBot
->>>>>>> 5ab3804cacddb0b4b10898f13e3f683b3ffd4a85
+>>>>>>> 

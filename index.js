@@ -1,61 +1,67 @@
-// import OpenAI from "openai"
-const express = require("express");
-const { Telegraf } = require("telegraf");
-const OpenAI = require("openai"); // Исправленный импорт
-require("dotenv").config();
+import express from 'express';
+import { Telegraf } from 'telegraf';
+import fetch from 'node-fetch';
+import dotenv from 'dotenv';
 
+dotenv.config(); // Загружаем переменные окружения из .env
 
-const bot = new Telegraf(process.env.TELEGRAM_BOT_API_KEY);
-const openai = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY,
-});
+const BOT_TOKEN = process.env.BOT_TOKEN;
+const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+const WEBHOOK_URL = `https://yourdomain.com/webhook/${BOT_TOKEN}`; // Укажи свой домен
 
-// Удаляем вебхук перед запуском, чтобы избежать конфликтов
-bot.telegram.deleteWebhook().then(() => bot.launch());
+if (!BOT_TOKEN || !OPENAI_API_KEY) {
+    console.error('❌ ERROR: Убедись, что BOT_TOKEN и OPENAI_API_KEY указаны в .env');
+    process.exit(1);
+}
 
-// Приветственные сообщения
-bot.start((ctx) => ctx.reply("Привет! Напиши свой вопрос, и я помогу."));
-bot.help((ctx) => ctx.reply("Используй команду /ask <вопрос> для запроса к OpenAI."));
+const bot = new Telegraf(BOT_TOKEN);
+const app = express();
+app.use(express.json());
 
-// Обработка команды /ask
-bot.command('ask', async (ctx) => {
-    const question = ctx.message.text.slice(5).trim();
-
-    if (!question) {
-        return ctx.reply('Пожалуйста, напишите вопрос после команды /ask');
-    }
+// Обработчик сообщений
+bot.on('text', async (ctx) => {
+    const userMessage = ctx.message.text;
+    console.log(`📩 Сообщение от пользователя: ${userMessage}`);
 
     try {
-        const response = await openai.chat.completions.create({
-            model: 'gpt-4o-mini',
-            messages: [{ role: 'user', content: question }],
+        const response = await fetch('https://api.openai.com/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${OPENAI_API_KEY}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                model: 'gpt-3.5-turbo',
+                messages: [{ role: 'user', content: userMessage }]
+            })
         });
 
-        // Проверяем, есть ли ответы в choices
-        if (response.choices && response.choices.length > 0) {
-            ctx.reply(response.choices[0].message.content.trim());
-        } else {
-            ctx.reply('OpenAI не дал ответа. Попробуйте еще раз.');
-        }
+        const data = await response.json();
+        const botReply = data.choices?.[0]?.message?.content || 'Извините, не могу ответить 😢';
+
+        console.log(`🤖 Ответ бота: ${botReply}`);
+        ctx.reply(botReply);
+
     } catch (error) {
-        console.error('Ошибка OpenAI:', error);
-        ctx.reply('Произошла ошибка при запросе OpenAI');
+        console.error('❌ Ошибка при запросе к OpenAI:', error);
+        ctx.reply('Произошла ошибка, попробуйте позже 🙏');
     }
 });
 
-// Создаем Express сервер (для Render)
-const app = express();
-const PORT = process.env.PORT || 3000;
-
-app.get("/", (req, res) => {
-    res.send("Bot is running...");
+// Устанавливаем Webhook
+app.post(`/webhook/${BOT_TOKEN}`, (req, res) => {
+    bot.handleUpdate(req.body);
+    res.sendStatus(200);
 });
 
-// Keep-alive для Render
-setInterval(() => {
-    fetch(`https://${process.env.RENDER_EXTERNAL_URL}`).catch(() => { });
-}, 5 * 60 * 1000); // Раз в 5 минут
+// Запускаем сервер
+app.listen(3000, async () => {
+    console.log('🚀 Webhook сервер запущен на порту 3000');
 
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
+    try {
+        await bot.telegram.setWebhook(WEBHOOK_URL);
+        console.log(`✅ Webhook установлен: ${WEBHOOK_URL}`);
+    } catch (error) {
+        console.error('❌ Ошибка при установке Webhook:', error);
+    }
 });
