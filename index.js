@@ -37,8 +37,15 @@ bot.command('ask', async (ctx) => {
 
     try {
         const response = await openai.chat.completions.create({
-            model: "gpt-3.5-turbo",
-            messages: [{ role: "user", content: userMessage }],
+            model: "gpt-4o-mini",
+            messages: [
+                { role: "system", content: "You are a helpful assistant." },
+                {
+                    role: "user",
+                    content: "Write a haiku about recursion in programming.",
+                },
+            ],
+            store: true,
         });
 
         console.log(`✅ Ответ от OpenAI: ${response.choices[0].message.content}`);
