@@ -1,4 +1,5 @@
 // index.js
+const express = require('express');
 const { Telegraf } = require('telegraf');
 const { OpenAI } = require('openai'); // Импортируем OpenAI из библиотеки
 
@@ -40,6 +41,19 @@ bot.command('ask', async (ctx) => {
 
 // Запуск бота
 bot.launch();
+
+// Создаем Express сервер (для Render)
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+app.get('/', (req, res) => {
+    res.send('Bot is running...');
+});
+
+app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+});
+
 
 // Экспорт для Render
 module.exports = (req, res) => {
