@@ -7,7 +7,7 @@ dotenv.config(); // Загружаем переменные окружения �
 
 const BOT_TOKEN = process.env.BOT_TOKEN;
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
-const WEBHOOK_URL = `https://yourdomain.com/webhook/${BOT_TOKEN}`; // Укажи свой домен
+const WEBHOOK_URL = `https://telegbot-qgzu.onrender.com/${BOT_TOKEN}`; // Укажи свой домен
 
 if (!BOT_TOKEN || !OPENAI_API_KEY) {
     console.error('❌ ERROR: Убедись, что BOT_TOKEN и OPENAI_API_KEY указаны в .env');
