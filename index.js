@@ -57,7 +57,7 @@ bot.on('message', async (ctx) => {
 });
 
 
-// Устанавливаем Webhook
+// Устанавливаем Webhook 
 app.post(`/webhook/${BOT_TOKEN}`, (req, res) => {
     bot.handleUpdate(req.body);
     res.sendStatus(200);
