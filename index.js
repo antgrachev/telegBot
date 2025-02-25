@@ -2,6 +2,7 @@ const express = require("express");
 const { Telegraf } = require("telegraf");
 const OpenAI = require("openai"); // Исправленный импорт
 require("dotenv").config();
+const fetch = require('node-fetch');
 
 const bot = new Telegraf(process.env.TELEGRAM_BOT_API_KEY);
 const openai = new OpenAI({
