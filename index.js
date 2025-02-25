@@ -45,5 +45,3 @@ bot.launch();
 module.exports = (req, res) => {
     res.status(200).send('Bot is running');
 };
-
-console.log(process.env.OPENAI_API_KEY); // Должен вывести твой ключ API
