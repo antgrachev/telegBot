@@ -19,34 +19,30 @@ const app = express();
 app.use(express.json());
 
 // Обработчик сообщений
-bot.on('text', async (ctx) => {
-    const userMessage = ctx.message.text;
-    console.log(`📩 Сообщение от пользователя: ${userMessage}`);
+bot.command('ask', async (ctx) => {
+    const userMessage = ctx.message.text.replace('/ask', '').trim();
+
+    if (!userMessage) {
+        return ctx.reply('Пожалуйста, напишите вопрос после /ask');
+    }
+
+    console.log(`🔍 Отправляю запрос в OpenAI: ${userMessage}`);
 
     try {
-        const response = await fetch('https://api.openai.com/v1/chat/completions', {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${OPENAI_API_KEY}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                model: 'gpt-3.5-turbo',
-                messages: [{ role: 'user', content: userMessage }]
-            })
+        const response = await openai.chat.completions.create({
+            model: "gpt-3.5-turbo",
+            messages: [{ role: "user", content: userMessage }],
         });
 
-        const data = await response.json();
-        const botReply = data.choices?.[0]?.message?.content || 'Извините, не могу ответить 😢';
+        console.log(`✅ Ответ от OpenAI: ${response.choices[0].message.content}`);
 
-        console.log(`🤖 Ответ бота: ${botReply}`);
-        ctx.reply(botReply);
-
+        ctx.reply(response.choices[0].message.content);
     } catch (error) {
-        console.error('❌ Ошибка при запросе к OpenAI:', error);
-        ctx.reply('Произошла ошибка, попробуйте позже 🙏');
+        console.error(`❌ Ошибка запроса к OpenAI:`, error);
+        ctx.reply('Извините, произошла ошибка при обработке запроса 😢');
     }
 });
+
 
 // Устанавливаем Webhook
 app.post(`/webhook/${BOT_TOKEN}`, (req, res) => {
