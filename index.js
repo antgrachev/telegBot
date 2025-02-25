@@ -1,12 +1,18 @@
 import express from 'express';
 import { Telegraf } from 'telegraf';
-import fetch from 'node-fetch';
+import { OpenAI } from "openai";
+
+// Инициализация OpenAI API с ключом
+
+
 import dotenv from 'dotenv';
 
 dotenv.config(); // Загружаем переменные окружения из .env
 
 const BOT_TOKEN = process.env.BOT_TOKEN;
-const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+const openai = new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY, // Убедись, что переменная окружения задана
+});
 const WEBHOOK_URL = `https://telegbot-qgzu.onrender.com/webhook/${BOT_TOKEN}`; // Укажи свой домен
 
 if (!BOT_TOKEN || !OPENAI_API_KEY) {
