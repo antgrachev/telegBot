@@ -50,6 +50,9 @@ bot.command('/forget', async (ctx) => ctx.session.messages.slice(0, 1))
 bot.on('message', async (ctx) => {
     const messageText = ctx.message.text.trim();
 
+    if (messageText.includes('/forget'))
+        return;
+
     console.log(`Получено сообщение от пользователя "${ctx.message.from.username}": ${messageText}`);
 
     const currentMessage = {
