@@ -45,9 +45,9 @@ bot.use((ctx, next) => {
 
 bot.start((ctx) => ctx.reply('Хай балагай'));
 
-bot.command('/forget', async (ctx) => {
+bot.command('forget', async (ctx) => {
     ctx.session.messages = ctx.session.messages.slice(0, 1)
-    ctx.reply("🧹 Контекст забыт!")
+    await ctx.reply("🧹 Контекст забыт!")
 })
 
 bot.on('message', async (ctx) => {
