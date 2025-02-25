@@ -1,3 +1,4 @@
+// import OpenAI from "openai"
 const express = require("express");
 const { Telegraf } = require("telegraf");
 const OpenAI = require("openai"); // Исправленный импорт
@@ -23,9 +24,11 @@ bot.command("ask", async (ctx) => {
 
     try {
         const response = await openai.chat.completions.create({
-            model: "gpt-3.5-turbo",
+            model: "gpt-4o-mini",
             messages: [{ role: "user", content: question }],
         });
+
+        response.then((result) => console.log(result.choices[0].message));
 
         ctx.reply(response.choices[0].message.content.trim());
     } catch (error) {
