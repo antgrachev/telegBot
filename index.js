@@ -41,12 +41,10 @@ bot.use((ctx, next) => {
 });
 
 await bot.telegram.setMyCommands([
-    { command: "forget", description: "Очистить контекст переписки" }
+    { command: "forget", description: "Очистить контекст переписки" },
+    { command: "image", description: "Создать изображение по описанию" }
 ]);
 
-await bot.telegram.setMyCommands([
-    { command: "draw", description: "Создать картинку" }
-]);
 // Обработчик сообщений
 
 bot.start((ctx) => ctx.reply('Я вас приветствую. \nГотов ответить на любые ваши вопросы...📜'));
@@ -56,61 +54,61 @@ bot.command('forget', async (ctx) => {
     await ctx.reply("🧹 Контекст забыт!")
 })
 
-bot.command('draw', async (ctx) => {
-    const prompt = ctx.message.text.replace('/draw', '').trim();
-
-    if (!prompt) {
-        return ctx.reply("🎨 Напиши, что мне нарисовать, например: `/draw дракон, парящий над Вестеросом`");
-    }
-
-    try {
-        await ctx.reply("🖌️ Рисую... Подожди немного!");
-
-        const response = await openai.images.generate({
-            model: "dall-e-3", // Можно попробовать "dall-e-2", если нужно попроще
-            prompt: prompt,
-            size: "1024x1024", // Другие варианты: "512x512" или "256x256"
-            n: 1
-        });
-
-        const imageUrl = response.data[0].url;
-        await ctx.replyWithPhoto(imageUrl, { caption: `🖼️ Вот твоя картина: "${prompt}"` });
-
-    } catch (error) {
-        console.error("❌ Ошибка генерации изображения:", error);
-        await ctx.reply("🚫 Не удалось создать картинку. Попробуй другой запрос.");
-    }
+bot.command('image', async (ctx) => {
+    await ctx.reply("🖼 Введите описание изображения, и я попробую его создать!");
 });
-
 
 bot.on('message', async (ctx) => {
     const messageText = ctx.message.text.trim();
 
-    if (messageText.includes('/forget'))
-        return;
+    if (messageText.startsWith('/forget')) return;
 
+    if (messageText.startsWith('/image')) {
+        await ctx.reply("🖌 Введите описание картинки для генерации!");
+        return;
+    }
+
+    if (ctx.message.reply_to_message && ctx.message.reply_to_message.text.includes("Введите описание изображения")) {
+        try {
+            await ctx.sendChatAction('upload_photo');
+
+            const response = await openai.images.generate({
+                model: "dall-e-3",
+                prompt: messageText,
+                size: "1024x1024",
+                n: 1
+            });
+
+            const imageUrl = response.data[0].url;
+            await ctx.replyWithPhoto(imageUrl, { caption: "🎨 Вот ваше изображение!" });
+        } catch (error) {
+            console.error("❌ Ошибка генерации изображения:", error.response?.data || error);
+            await ctx.reply("🚫 Не удалось создать картинку. Попробуйте другой запрос.");
+        }
+        return;
+    }
+
+    // Если сообщение не связано с картинкой — обработка обычного запроса
     console.log(`Получено сообщение от пользователя "${ctx.message.from.username}": ${messageText}`);
 
     const currentMessage = {
         role: "user",
         content: messageText
-    }
+    };
 
-    // Добавляем сообщение пользователя в историю
     ctx.session.messages.push(currentMessage);
 
-    const request = {
-        model: "gpt-4o-mini",
-        messages: ctx.session.messages
-    }
     try {
         await ctx.sendChatAction('typing');
-        const response = await openai.chat.completions.create(request);
+        const response = await openai.chat.completions.create({
+            model: "gpt-4o-mini",
+            messages: ctx.session.messages
+        });
 
-        ctx.reply(response.choices[0].message.content);
+        await ctx.reply(response.choices[0].message.content);
     } catch (error) {
-        console.error(`❌ Ошибка запроса к OpenAI:`, error);
-        ctx.reply('Извините, произошла ошибка при обработке запроса 😢');
+        console.error("❌ Ошибка запроса к OpenAI:", error);
+        await ctx.reply('Извините, произошла ошибка при обработке запроса 😢');
     }
 });
 
