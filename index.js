@@ -44,6 +44,9 @@ await bot.telegram.setMyCommands([
     { command: "forget", description: "Очистить контекст переписки" }
 ]);
 
+await bot.telegram.setMyCommands([
+    { command: "draw", description: "Создать картинку" }
+]);
 // Обработчик сообщений
 
 bot.start((ctx) => ctx.reply('Я вас приветствую. \nГотов ответить на любые ваши вопросы...📜'));
@@ -52,6 +55,33 @@ bot.command('forget', async (ctx) => {
     ctx.session.messages = ctx.session.messages.slice(0, 1)
     await ctx.reply("🧹 Контекст забыт!")
 })
+
+bot.command('draw', async (ctx) => {
+    const prompt = ctx.message.text.replace('/draw', '').trim();
+
+    if (!prompt) {
+        return ctx.reply("🎨 Напиши, что мне нарисовать, например: `/draw дракон, парящий над Вестеросом`");
+    }
+
+    try {
+        await ctx.reply("🖌️ Рисую... Подожди немного!");
+
+        const response = await openai.images.generate({
+            model: "dall-e-3", // Можно попробовать "dall-e-2", если нужно попроще
+            prompt: prompt,
+            size: "1024x1024", // Другие варианты: "512x512" или "256x256"
+            n: 1
+        });
+
+        const imageUrl = response.data[0].url;
+        await ctx.replyWithPhoto(imageUrl, { caption: `🖼️ Вот твоя картина: "${prompt}"` });
+
+    } catch (error) {
+        console.error("❌ Ошибка генерации изображения:", error);
+        await ctx.reply("🚫 Не удалось создать картинку. Попробуй другой запрос.");
+    }
+});
+
 
 bot.on('message', async (ctx) => {
     const messageText = ctx.message.text.trim();
