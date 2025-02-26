@@ -70,8 +70,13 @@ bot.on('message', async (ctx) => {
 
     if (ctx.message.reply_to_message && ctx.message.reply_to_message.text.includes("Введите описание изображения")) {
         try {
+            // Отправляем сообщение о генерации
+            const processingMessage = await ctx.reply("🖌 Генерирую...");
+
+            // Показываем индикатор загрузки
             await ctx.sendChatAction('upload_photo');
 
+            // Генерация изображения
             const response = await openai.images.generate({
                 model: "dall-e-3",
                 prompt: messageText,
@@ -80,7 +85,13 @@ bot.on('message', async (ctx) => {
             });
 
             const imageUrl = response.data[0].url;
+
+            // Удаляем предыдущее сообщение "Генерирую..."
+            await ctx.deleteMessage(processingMessage.message_id);
+
+            // Отправляем изображение
             await ctx.replyWithPhoto(imageUrl, { caption: "🎨 Вот ваше изображение!" });
+
         } catch (error) {
             console.error("❌ Ошибка генерации изображения:", error.response?.data || error);
             await ctx.reply("🚫 Не удалось создать картинку. Попробуйте другой запрос.");
@@ -88,7 +99,7 @@ bot.on('message', async (ctx) => {
         return;
     }
 
-    // Если сообщение не связано с картинкой — обработка обычного запроса
+    // Если сообщение не связано с картинкой — обычный ответ AI
     console.log(`Получено сообщение от пользователя "${ctx.message.from.username}": ${messageText}`);
 
     const currentMessage = {
@@ -111,6 +122,7 @@ bot.on('message', async (ctx) => {
         await ctx.reply('Извините, произошла ошибка при обработке запроса 😢');
     }
 });
+
 
 // Устанавливаем Webhook 
 app.post(`/webhook/${BOT_TOKEN}`, (req, res) => {
