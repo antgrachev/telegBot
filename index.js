@@ -76,6 +76,11 @@ bot.on('message', async (ctx) => {
         const response = await openai.chat.completions.create(request);
 
         ctx.reply(response.choices[0].message.content);
+        if (/спасибо|пока|не интересно|может позже/i.test(messageText)) {
+            await ctx.reply("Я еще учусь и в будущем буду общаться еще профессиональнее. Если захотите поговорить снова, нажмите /start", {
+                reply_markup: Markup.keyboard([["/start"]]).resize()
+            });
+        }
     } catch (error) {
         console.error(`❌ Ошибка запроса к OpenAI:`, error);
         ctx.reply('Извините, произошла ошибка при обработке запроса 😢');
