@@ -5,6 +5,21 @@ import { askOpenAI } from './openai.js';
 const bot = new Telegraf(BOT_TOKEN);
 bot.use(session());
 
+const { exec } = require("child_process");
+
+// Запускаем forward.py
+exec("python forward.py", (error, stdout, stderr) => {
+    if (error) {
+        console.error(`Ошибка: ${error.message}`);
+        return;
+    }
+    if (stderr) {
+        console.error(`STDERR: ${stderr}`);
+        return;
+    }
+    console.log(`STDOUT: ${stdout}`);
+});
+
 // Инициализация контекста
 bot.use((ctx, next) => {
     if (!ctx.session) ctx.session = {
