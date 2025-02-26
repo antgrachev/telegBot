@@ -1,11 +1,11 @@
 import { Telegraf, session } from 'telegraf';
 import { BOT_TOKEN } from './config.js';
 import { askOpenAI } from './openai.js';
+import { exec } from 'child_process';
 
 const bot = new Telegraf(BOT_TOKEN);
 bot.use(session());
 
-const { exec } = require("child_process");
 
 // Запускаем forward.py
 exec("python forward.py", (error, stdout, stderr) => {
