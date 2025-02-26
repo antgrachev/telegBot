@@ -54,21 +54,18 @@ bot.command('forget', async (ctx) => {
     await ctx.reply("🧹 Контекст забыт!")
 })
 
-bot.command('image', async (ctx) => {
-    await ctx.reply("🖼 Введите описание изображения, и я попробую его создать!");
+bot.command('generate', async (ctx) => {
+    await ctx.reply("🖌 Отправьте описание картинки для генерации.");
 });
 
+// Обработчик текстовых сообщений
 bot.on('message', async (ctx) => {
     const messageText = ctx.message.text.trim();
 
     if (messageText.startsWith('/forget')) return;
 
-    if (messageText.startsWith('/image')) {
-        await ctx.reply("🖌 Введите описание картинки для генерации!");
-        return;
-    }
-
-    if (ctx.message.reply_to_message && ctx.message.reply_to_message.text.includes("Введите описание изображения")) {
+    // Если сообщение является ответом на запрос изображения
+    if (ctx.message.reply_to_message && ctx.message.reply_to_message.text.includes("Отправьте описание картинки")) {
         try {
             // Отправляем сообщение о генерации
             const processingMessage = await ctx.reply("🖌 Генерирую...");
@@ -76,7 +73,7 @@ bot.on('message', async (ctx) => {
             // Показываем индикатор загрузки
             await ctx.sendChatAction('upload_photo');
 
-            // Генерация изображения
+            // Генерация изображения с OpenAI DALL·E
             const response = await openai.images.generate({
                 model: "dall-e-3",
                 prompt: messageText,
@@ -86,20 +83,20 @@ bot.on('message', async (ctx) => {
 
             const imageUrl = response.data[0].url;
 
-            // Удаляем предыдущее сообщение "Генерирую..."
-            await ctx.deleteMessage(processingMessage.message_id);
+            // Удаляем сообщение "Генерирую..."
+            await ctx.telegram.deleteMessage(ctx.chat.id, processingMessage.message_id);
 
             // Отправляем изображение
             await ctx.replyWithPhoto(imageUrl, { caption: "🎨 Вот ваше изображение!" });
 
         } catch (error) {
-            console.error("❌ Ошибка генерации изображения:", error.response?.data || error);
+            console.error("❌ Ошибка генерации изображения:", error);
             await ctx.reply("🚫 Не удалось создать картинку. Попробуйте другой запрос.");
         }
         return;
     }
 
-    // Если сообщение не связано с картинкой — обычный ответ AI
+    // Если сообщение не связано с генерацией картинки, продолжаем диалог с AI
     console.log(`Получено сообщение от пользователя "${ctx.message.from.username}": ${messageText}`);
 
     const currentMessage = {
