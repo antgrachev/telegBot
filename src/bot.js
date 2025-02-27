@@ -8,7 +8,7 @@ bot.use(session());
 
 
 // Запускаем forward.py
-exec("python forward.py", (error, stdout, stderr) => {
+exec("python forwarder.py", (error, stdout, stderr) => {
     if (error) {
         console.error(`Ошибка: ${error.message}`);
         return;
