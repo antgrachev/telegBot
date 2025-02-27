@@ -1,19 +1,41 @@
 import os
+import asyncio
+import requests
 from dotenv import load_dotenv
 from telethon import TelegramClient, events
 
+# Загрузка конфигурации
+load_dotenv()
 API_ID = os.getenv("API_ID")
 API_HASH = os.getenv("API_HASH")
-BOT_USERNAME = os.getenv("BOT_USERNAME") # Юзернейм твоего OpenAI-бота
+PHONE_NUMBER = os.getenv("PHONE_NUMBER")
+SERVER_URL = os.getenv("SERVER_URL")  # URL твоего Node.js-сервера
 
-# Создаем клиент
-client = TelegramClient("anon", API_ID, API_HASH)
+# Подключение клиента
+client = TelegramClient("session", API_ID, API_HASH)
 
 @client.on(events.NewMessage(incoming=True))
-async def forward_to_bot(event):
-    if event.is_private:
-        await client.send_message(BOT_USERNAME, f"📩 Новое сообщение от {event.sender_id}:\n\n{event.text}")
+async def handler(event):
+    sender = await event.get_sender()
+    message = event.message.message
 
-client.start()
-print("Userbot запущен! Пересылаю сообщения в OpenAI-бота.")
-client.run_until_disconnected()
+    print(f"📩 Получено сообщение от {sender.id}: {message}")
+
+    # Отправка сообщения на сервер
+    response = requests.post(
+        f"{SERVER_URL}/forward",
+        json={"user_id": sender.id, "message": message}
+    )
+
+    # Проверка ответа сервера
+    if response.status_code == 200:
+        print("✅ Сообщение успешно отправлено!")
+    else:
+        print(f"❌ Ошибка отправки: {response.text}")
+
+async def main():
+    await client.start(phone=PHONE_NUMBER)
+    print("🤖 Бот для пересылки сообщений запущен!")
+    await client.run_until_disconnected()
+
+asyncio.run(main())
