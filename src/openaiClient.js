@@ -1,10 +1,11 @@
-import { Configuration, OpenAIApi } from "openai";
+import { OpenAI } from 'openai';
 import { OPENAI_API_KEY } from "./config.js";
 import { logger } from "./logger.js";
 import { BOT_BEHAVIOR } from "./botConfig.js";
 
-const configuration = new Configuration({ apiKey: OPENAI_API_KEY });
-const openai = new OpenAIApi(configuration);
+const openai = new OpenAI({
+    apiKey: OPENAI_API_KEY
+});
 
 export async function generateOpenAIResponse(prompt) {
     try {
