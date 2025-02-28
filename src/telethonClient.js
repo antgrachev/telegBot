@@ -1,9 +1,9 @@
-import { TelegramClient } from "telegram";
-import { StringSession } from "telegram/sessions/index.js";
-import { API_ID, API_HASH, STRING_SESSION, PHONE_NUMBER, TELEGRAM_PASSWORD, TELEGRAM_USER_ID } from "./config.js";
-import { generateOpenAIResponse } from "./openaiClient.js";
-import { logger } from "./logger.js";
-import bot from "./telegramBot.js";
+import { TelegramClient, events } from 'telegram';
+import { StringSession } from 'telegram/sessions/index.js';
+import { API_ID, API_HASH, STRING_SESSION, PHONE_NUMBER, TELEGRAM_PASSWORD, TELEGRAM_USER_ID } from './config.js';
+import { generateOpenAIResponse } from './openaiClient.js';
+import { logger } from './logger.js';
+import bot from './telegramBot.js';
 
 const session = new StringSession(STRING_SESSION);
 export const client = new TelegramClient(session, Number(API_ID), API_HASH, { connectionRetries: 5 });
@@ -32,26 +32,12 @@ export async function startTelethonClient() {
         }
         console.log("Пользователь успешно авторизован.");
 
-        // Проверяем, что подключение к Telegram установлено
-        if (!client.connected) {
-            console.log("Нет подключения к Telegram.");
-            return;
-        }
-
-        // Добавляем обработчик событий
+        // Подписка на текстовые сообщения
         client.addEventHandler(async (event) => {
-            console.log("Получено событие от Telegram:", event);
-
             const message = event.message;
-            if (!message || !message.text) {
-                console.log("Это не текстовое сообщение или оно пустое.");
-                return;
-            }
-
-            console.log("Получено текстовое сообщение:", message.text);
-
-            if (message.senderId === Number(TELEGRAM_USER_ID)) {
-                logger.info(`Перехвачено сообщение от пользователя: ${message.text}`);
+            if (message && message.text) {
+                // Логирование текста сообщения
+                logger.info(`Перехвачено сообщение: ${message.text}`);
                 try {
                     const response = await generateOpenAIResponse(message.text);
                     if (response) {
@@ -64,9 +50,7 @@ export async function startTelethonClient() {
                     await bot.telegram.sendMessage(TELEGRAM_USER_ID, "Произошла ошибка при обработке вашего запроса.");
                 }
             }
-        });
-
-
+        }, new events.NewMessage({ incoming: true }));
 
     } catch (error) {
         logger.error("Ошибка при запуске Telethon клиента:", error);
