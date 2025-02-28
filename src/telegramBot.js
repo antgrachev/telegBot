@@ -35,16 +35,25 @@ bot.on("text", async (ctx) => {
         // Индикация печати
         await ctx.sendChatAction("typing");
 
+        // Логируем запрос к OpenAI
+        logger.info(`Отправка запроса в OpenAI для сообщения: ${userMessage}`);
+
         // Генерация ответа от OpenAI
         const response = await generateOpenAIResponse(userMessage);
 
-        // Добавление ответа в контекст
-        userContext.push({ role: "assistant", content: response });
-        userContexts.set(userId, userContext);
+        if (response) {
+            // Добавление ответа в контекст
+            userContext.push({ role: "assistant", content: response });
+            userContexts.set(userId, userContext);
 
-        // Отправка ответа пользователю
-        await ctx.reply(response, Markup.keyboard([['Очистить контекст']]).resize());
-        logger.info("Ответ отправлен пользователю.");
+            // Отправка ответа пользователю
+            await ctx.reply(response, Markup.keyboard([['Очистить контекст']]).resize());
+            logger.info("Ответ отправлен пользователю.");
+        } else {
+            logger.warn("Ответ от OpenAI пустой.");
+            await ctx.reply("Не удалось получить ответ от OpenAI.");
+        }
+
     } catch (error) {
         logger.error("Ошибка при запросе к OpenAI:", error);
         await ctx.reply("Произошла ошибка, попробуйте позже.");
@@ -56,8 +65,13 @@ bot.telegram.setWebhook(WEBHOOK_URL);
 
 // Обработка запросов вебхука
 app.post("/webhook", (req, res) => {
-    bot.handleUpdate(req.body);
-    res.sendStatus(200);
+    try {
+        bot.handleUpdate(req.body);
+        res.sendStatus(200);
+    } catch (error) {
+        logger.error("Ошибка при обработке запроса вебхука:", error);
+        res.sendStatus(500);
+    }
 });
 
 // Возвращаем Express приложение для запуска в `server.js`
