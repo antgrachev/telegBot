@@ -4,7 +4,7 @@ import { API_ID, API_HASH, STRING_SESSION, PHONE_NUMBER, TELEGRAM_PASSWORD, TELE
 import { generateOpenAIResponse } from './openaiClient.js';
 import { logger } from './logger.js';
 import bot from './telegramBot.js';
-import { NewMessage } from 'telegram/events';  // Подключаем NewMessage из events
+import { NewMessage } from 'telegram/events/NewMessage';  // Явный импорт события NewMessage
 
 const session = new StringSession(STRING_SESSION);
 export const client = new TelegramClient(session, Number(API_ID), API_HASH, { connectionRetries: 5 });
@@ -51,7 +51,7 @@ export async function startTelethonClient() {
                     await bot.telegram.sendMessage(TELEGRAM_USER_ID, "Произошла ошибка при обработке вашего запроса.");
                 }
             }
-        }, new NewMessage({ incoming: true })); // Используем NewMessage из telegram/events
+        }, new NewMessage({ incoming: true })); // Используем явный импорт NewMessage
 
     } catch (error) {
         logger.error("Ошибка при запуске Telethon клиента:", error);
