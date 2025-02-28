@@ -1,5 +1,5 @@
-import pkg from 'telegram';  // Импортируем дефолтный экспорт
-const { TelegramClient, events } = pkg;  // Деструктурируем TelegramClient и events
+import { TelegramClient } from 'telegram';
+import { events } from 'telegram';
 import { StringSession } from 'telegram/sessions/index.js';
 import { API_ID, API_HASH, STRING_SESSION, PHONE_NUMBER, TELEGRAM_PASSWORD, TELEGRAM_USER_ID } from './config.js';
 import { generateOpenAIResponse } from './openaiClient.js';
