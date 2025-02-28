@@ -11,7 +11,7 @@ export async function generateOpenAIResponse(prompt) {
     try {
         const messages = [...BOT_BEHAVIOR, { role: "user", content: prompt }];
         const response = await openai.createChatCompletion({
-            model: "gpt-4",
+            model: "gpt-4o-mini",
             messages,
             max_tokens: 200,
             temperature: 0.7
