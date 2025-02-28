@@ -1,5 +1,5 @@
 import { TelegramClient } from "telegram";
-import { StringSession } from "telegram/sessions/index.js"; // указываем индексный файл
+import { StringSession } from "telegram/sessions/index.js";
 import { API_ID, API_HASH, STRING_SESSION, PHONE_NUMBER, TELEGRAM_PASSWORD, TELEGRAM_USER_ID } from "./config.js";
 import { generateOpenAIResponse } from "./openaiClient.js";
 import { logger } from "./logger.js";
@@ -32,8 +32,15 @@ export async function startTelethonClient() {
         }
         console.log("Пользователь успешно авторизован.");
 
-        // Обработчик входящих сообщений
+        // Проверяем, что подключение к Telegram установлено
+        if (!client.connected) {
+            console.log("Нет подключения к Telegram.");
+            return;
+        }
+
+        // Добавляем обработчик событий
         client.addEventHandler(async (event) => {
+            console.log("Получено событие от Telegram.");
             const message = event.message;
             if (message && message.senderId === Number(TELEGRAM_USER_ID)) {
                 logger.info(`Перехвачено сообщение от пользователя: ${message.text}`);
@@ -42,7 +49,7 @@ export async function startTelethonClient() {
                     if (response) {
                         await bot.telegram.sendMessage(TELEGRAM_USER_ID, response);
                     } else {
-                        logger.warn("Нет ответа от OpenAI.");
+                        logger.warn("Ответ от OpenAI пустой.");
                     }
                 } catch (error) {
                     logger.error("Ошибка при генерации ответа от OpenAI:", error);
