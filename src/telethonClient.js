@@ -1,10 +1,10 @@
-import pkg from 'telegram';  // Дефолтный импорт для CommonJS модуля
-const { TelegramClient, events } = pkg;
+import { TelegramClient } from 'telegram';
 import { StringSession } from 'telegram/sessions/index.js';
 import { API_ID, API_HASH, STRING_SESSION, PHONE_NUMBER, TELEGRAM_PASSWORD, TELEGRAM_USER_ID } from './config.js';
 import { generateOpenAIResponse } from './openaiClient.js';
 import { logger } from './logger.js';
 import bot from './telegramBot.js';
+import { NewMessage } from 'telegram/events';  // Подключаем NewMessage из events
 
 const session = new StringSession(STRING_SESSION);
 export const client = new TelegramClient(session, Number(API_ID), API_HASH, { connectionRetries: 5 });
@@ -51,7 +51,7 @@ export async function startTelethonClient() {
                     await bot.telegram.sendMessage(TELEGRAM_USER_ID, "Произошла ошибка при обработке вашего запроса.");
                 }
             }
-        }, new events.NewMessage({ incoming: true }));
+        }, new NewMessage({ incoming: true })); // Используем NewMessage из telegram/events
 
     } catch (error) {
         logger.error("Ошибка при запуске Telethon клиента:", error);
