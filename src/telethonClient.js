@@ -1,4 +1,5 @@
-import { TelegramClient, events } from 'telegram';
+import pkg from 'telegram';  // Дефолтный импорт для CommonJS модуля
+const { TelegramClient, events } = pkg;
 import { StringSession } from 'telegram/sessions/index.js';
 import { API_ID, API_HASH, STRING_SESSION, PHONE_NUMBER, TELEGRAM_PASSWORD, TELEGRAM_USER_ID } from './config.js';
 import { generateOpenAIResponse } from './openaiClient.js';
