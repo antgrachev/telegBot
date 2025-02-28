@@ -1,5 +1,5 @@
 import { TelegramClient } from "telegram";
-import { StringSession } from "telegram/sessions";
+import { StringSession } from "telegram/sessions/index.js"; // указываем индексный файл
 import { API_ID, API_HASH, STRING_SESSION, PHONE_NUMBER, TELEGRAM_PASSWORD, TELEGRAM_USER_ID } from "./config.js";
 import { generateOpenAIResponse } from "./openaiClient.js";
 import { logger } from "./logger.js";
