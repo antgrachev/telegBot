@@ -41,19 +41,19 @@ export async function startTelethonClient() {
         // Добавляем обработчик событий
         client.addEventHandler(async (event) => {
             console.log("Получено событие от Telegram:", event);
+
             const message = event.message;
-            if (!message) {
-                console.log("Сообщение пустое");
+            if (!message || !message.text) {
+                console.log("Это не текстовое сообщение или оно пустое.");
                 return;
             }
+
+            console.log("Получено текстовое сообщение:", message.text);
+
             if (message.senderId === Number(TELEGRAM_USER_ID)) {
                 logger.info(`Перехвачено сообщение от пользователя: ${message.text}`);
                 try {
                     const response = await generateOpenAIResponse(message.text);
-                    console.log("Ответ от OpenAI:", response);
-                    if (!response) {
-                        console.log("Ответ пустой.");
-                    }
                     if (response) {
                         await bot.telegram.sendMessage(TELEGRAM_USER_ID, response);
                     } else {
@@ -65,6 +65,7 @@ export async function startTelethonClient() {
                 }
             }
         });
+
 
 
     } catch (error) {
