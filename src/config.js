@@ -14,10 +14,4 @@ if (!BOT_TOKEN || !OPENAI_API_KEY || !API_ID || !API_HASH || !SESSION_STRING) {
     process.exit(1);
 }
 
-
-if (!BOT_TOKEN || !OPENAI_API_KEY) {
-    console.error('❌ ERROR: Убедись, что BOT_TOKEN и OPENAI_API_KEY указаны в .env');
-    process.exit(1);
-}
-
-console.log('BOT_TOKEN || OPENAI_API_KEY указаны')
+console.log('BOT_TOKEN || OPENAI_API_KEY API_ID || API_HASH || SESSION_STRING указаны')
