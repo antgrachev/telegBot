@@ -37,7 +37,7 @@ async function startClient() {
                 message: {
                     message_id: event.message.id,
                     from: {
-                        id: event.message.senderId.value,
+                        id: event.message.senderId ? event.message.senderId.value : 'неизвестно', // Защищаем от ошибки
                         is_bot: false,
                         first_name: "Вы",
                         username: "user",
@@ -56,6 +56,7 @@ async function startClient() {
             console.error(`❌ Ошибка обработки сообщения:`, error);
         }
     });
+
 }
 
 // Запускаем клиент
