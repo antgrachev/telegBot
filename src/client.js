@@ -29,7 +29,7 @@ export const client = new TelegramClient(session, API_ID, API_HASH, {
     process.env.SESSION_STRING = client.session.save(); // Сохраняем сессию
 
     client.addEventHandler(async (event) => {
-        if (event.message.out) return; // Игнорируем свои сообщения
+        if (!event.message || event.message.out) return; // Добавлена проверка на существование message
         const messageText = event.message.message;
 
         console.log(`📩 Получено сообщение: ${messageText}`);
