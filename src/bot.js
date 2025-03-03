@@ -5,8 +5,9 @@ import { setupSession } from './middleware.js';
 
 export const bot = new Telegraf(BOT_TOKEN);
 setupSession(bot);
+console.log(' Бот запущен и готов к работе, а значитcz поехали');
 
-bot.start((ctx) => ctx.reply('Я вавас приветствую и внимамательно слушаю. \nЗазадавайте ваш вопрос...'));
+bot.start((ctx) => ctx.reply('Я вас приветствую и внимательно слушаю. \nЗадавайте ваш вопрос...'));
 
 bot.command('forget', async (ctx) => {
     ctx.session.messages = ctx.session.messages.slice(0, 1);
@@ -18,8 +19,10 @@ bot.on('message', async (ctx) => {
     if (messageText.includes('/forget')) return;
     console.log(`Получено сообщение от пользователя "${ctx.message.from.username}": ${messageText}`);
 
+    if (!ctx.session.messages) ctx.session.messages = [];
     ctx.session.messages.push({ role: "user", content: messageText });
-    ctx.session.messages = ctx.session.messages.slice(-10); // Храним последние 10 сообщений
+    ctx.session.messages = ctx.session.messages.slice(-10);
+
     const request = {
         model: "gpt-4o-mini",
         messages: ctx.session.messages
@@ -45,6 +48,6 @@ bot.on('message', async (ctx) => {
     }
 
     if (retries === 0) {
-        ctx.reply('Извините, сервис временно перегружен. Попробуйте позже.');
+        await ctx.reply('Извините, сервис временно перегружен. Попробуйте позже.');
     }
 });

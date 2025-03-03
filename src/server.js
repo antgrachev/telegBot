@@ -1,6 +1,8 @@
 import express from 'express';
 import { bot } from './bot.js';
 import { WEBHOOK_URL, BOT_TOKEN } from './config.js';
+import './client.js'; // Запускаем клиент личного аккаунта
+
 
 const app = express();
 app.use(express.json());
