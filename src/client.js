@@ -1,5 +1,5 @@
 import { Api, TelegramClient } from "telegram";
-import { StringSession } from "telegram/sessions";
+import { StringSession } from "telegram/sessions/index.js";
 import input from "input"; // Для ввода кода при первом запуске
 import dotenv from 'dotenv';
 import { bot } from './bot.js';
