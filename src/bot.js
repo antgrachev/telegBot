@@ -27,11 +27,11 @@ bot.on('message', async (ctx) => {
 
     let retries = 3;
     while (retries > 0) {
-
         try {
             await ctx.sendChatAction('typing');
             const response = await openai.chat.completions.create(request);
             ctx.reply(response.choices[0].message.content);
+            break; // Выходим из цикла после успешного ответа
         } catch (error) {
             if (error.code === 'rate_limit_exceeded') {
                 console.warn(`⚠️ Лимит запросов достигнут, ждем 30 секунд...`);
@@ -39,8 +39,12 @@ bot.on('message', async (ctx) => {
                 retries--;
             } else {
                 console.error(`❌ Ошибка OpenAI:`, error);
-                return 'Извините, произошла ошибка при обработке запроса 😢';
+                return ctx.reply('Извините, произошла ошибка при обработке запроса 😢');
             }
         }
-    } return 'Извините, сервис временно перегружен. Попробуйте позже.';
-})
+    }
+
+    if (retries === 0) {
+        ctx.reply('Извините, сервис временно перегружен. Попробуйте позже.');
+    }
+});
