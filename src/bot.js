@@ -19,9 +19,10 @@ bot.on('message', async (ctx) => {
     console.log(`Получено сообщение от пользователя "${ctx.message.from.username}": ${messageText}`);
 
     ctx.session.messages.push({ role: "user", content: messageText });
+    ctx.session.messages = ctx.session.messages.slice(-10); // Храним последние 10 сообщений
     const request = {
         model: "gpt-4o-mini",
-        messages: messages.slice(-10) // Храним последние 10 сообщений
+        messages: ctx.session.messages
     };
 
     let retries = 3;
