@@ -28,14 +28,19 @@ async function startClient() {
     client.addEventHandler(async (event) => {
         if (!event.message || event.message.out) return; // Игнорируем исходящие сообщения
 
-        const messageText = event.message.message;
+        const messageText = event.message.message || ''; // Убедитесь, что текст существует
         console.log(`📩 Получено сообщение: ${messageText}`);
+
+        if (!messageText.trim()) {
+            console.log("❌ Сообщение пустое");
+            return; // Пропускаем пустые сообщения
+        }
 
         try {
             await bot.handleUpdate({
                 update_id: Date.now(),
                 message: {
-                    message_id: event.message.id,
+                    message_id: event.message.id || 'неизвестно', // Защищаем от ошибок с пустыми id
                     from: {
                         id: event.message.senderId ? event.message.senderId.value : 'неизвестно', // Защищаем от ошибки
                         is_bot: false,
@@ -43,10 +48,10 @@ async function startClient() {
                         username: "user",
                     },
                     chat: {
-                        id: event.message.chatId,
+                        id: event.message.chatId || 'неизвестно', // Защищаем от ошибки с пустыми chatId
                         type: "private"
                     },
-                    date: Math.floor(Date.now() / 1000),
+                    date: event.message.date || Math.floor(Date.now() / 1000), // Защищаем от ошибки с пустой датой
                     text: messageText
                 }
             });
@@ -56,7 +61,6 @@ async function startClient() {
             console.error(`❌ Ошибка обработки сообщения:`, error);
         }
     });
-
 }
 
 // Запускаем клиент
