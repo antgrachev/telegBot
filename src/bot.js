@@ -7,19 +7,19 @@ const bot = new Telegraf(BOT_TOKEN);
 bot.use(session());
 
 
-// Запускаем forward.py
-exec("python forwarder.py", (error, stdout, stderr) => {
-    if (error) {
-        console.error(`Ошибка: ${error.message}`);
-        return;
-    }
-    if (stderr) {
-        console.error(`STDERR: ${stderr}`);
-        return;
-    }
-    console.log(`STDOUT: ${stdout}`);
-});
-
+// // Запускаем forward.py
+// exec("python forwarder.py", (error, stdout, stderr) => {
+//     if (error) {
+//         console.error(`Ошибка: ${error.message}`);
+//         return;
+//     }
+//     if (stderr) {
+//         console.error(`STDERR: ${stderr}`);
+//         return;
+//     }
+//     console.log(`STDOUT: ${stdout}`);
+// });
+console.log('Запуск бота')
 // Инициализация контекста
 bot.use((ctx, next) => {
     if (!ctx.session) ctx.session = {

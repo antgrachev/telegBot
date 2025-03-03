@@ -13,6 +13,7 @@ export async function askOpenAI(messages) {
     while (retries > 0) {
         try {
             const response = await openai.chat.completions.create(request);
+            console.log('Получен ответ от OPENAI')
             return response.choices[0].message.content;
         } catch (error) {
             if (error.code === 'rate_limit_exceeded') {
