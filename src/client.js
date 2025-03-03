@@ -1,16 +1,21 @@
 import { Api, TelegramClient } from "telegram";
 import { StringSession } from "telegram/sessions/index.js";
+import { API_ID, API_HASH, SESSION_STRING } from "./config.js";
 import input from "input"; // Для ввода кода при первом запуске
 import dotenv from 'dotenv';
 import { bot } from './bot.js';
 
 dotenv.config();
 
-const apiId = Number(process.env.TELEGRAM_API_ID);
-const apiHash = process.env.TELEGRAM_API_HASH;
-const stringSession = new StringSession(process.env.TELEGRAM_SESSION || "");
+const stringSession = new StringSession(SESSION_STRING);
 
-const client = new TelegramClient(stringSession, apiId, apiHash, { connectionRetries: 5 });
+export const client = new TelegramClient(session, API_ID, API_HASH, {
+    connectionRetries: 5
+});
+(async () => {
+    await client.start();
+    console.log("✅ Клиент Telegram запущен!");
+})();
 
 (async () => {
     await client.start({
@@ -21,7 +26,7 @@ const client = new TelegramClient(stringSession, apiId, apiHash, { connectionRet
     });
 
     console.log("✅ Личный Telegram-клиент запущен!");
-    process.env.TELEGRAM_SESSION = client.session.save(); // Сохраняем сессию
+    process.env.SESSION_STRING = client.session.save(); // Сохраняем сессию
 
     client.addEventHandler(async (event) => {
         if (event.message.out) return; // Игнорируем свои сообщения
@@ -55,3 +60,4 @@ const client = new TelegramClient(stringSession, apiId, apiHash, { connectionRet
         }
     });
 })();
+
