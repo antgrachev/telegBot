@@ -33,7 +33,7 @@ export const client = new TelegramClient(session, API_ID, API_HASH, {
         const messageText = event.message.message;
 
         console.log(`📩 Получено сообщение: ${messageText}`);
-
+        парпар
         try {
             await bot.handleUpdate({
                 update_id: Date.now(),
