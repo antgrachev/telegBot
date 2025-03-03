@@ -7,7 +7,7 @@ import { bot } from './bot.js';
 
 dotenv.config();
 
-const stringSession = new StringSession(SESSION_STRING);
+const session = new StringSession(SESSION_STRING);
 
 export const client = new TelegramClient(session, API_ID, API_HASH, {
     connectionRetries: 5
