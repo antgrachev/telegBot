@@ -33,7 +33,10 @@ bot.on('message', async (ctx) => {
         try {
             await ctx.sendChatAction('typing');
             const response = await openai.chat.completions.create(request);
-            ctx.reply(response.choices[0].message.content);
+            var answer = response.choices[0].message.content;
+
+            ctx.reply(answer);
+            console.log(`Дан ответ БОТОМ "${bot.botInfo.username}": ${answer}`);
             break; // Выходим из цикла после успешного ответа
         } catch (error) {
             if (error.code === 'rate_limit_exceeded') {
