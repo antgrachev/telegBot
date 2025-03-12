@@ -35,7 +35,7 @@ bot.on('message', async (ctx) => {
             const response = await openai.chat.completions.create(request);
             var answer = response.choices[0].message.content;
 
-            ctx.reply(answer);
+            ctx.reply(answer, { parse_mode: "Markdown" });
             console.log(`Дан ответ БОТОМ "${bot.botInfo.username}": ${answer}`);
             break; // Выходим из цикла после успешного ответа
         } catch (error) {
